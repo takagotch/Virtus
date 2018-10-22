@@ -249,30 +249,72 @@ user.scream
 
 
 class User
+  include Virtus.model
+  attribute :unique_id, tring, :writer => :private
+  def set_unique_id(id)
+    self.unique_id = id
+  end
+end
+user = User.new(:unique_id => '1234-1234')
+user.unique_id
+user.unique_id = '1234-1234'
+user.set_unique_id('1234-1234')
+user.unique_id
+
+class User
+  include Virtus.model
+  attribute :name, String
+  def name=(new_name)
+    custom_name = nil
+    if new_name == "Godzilla"
+      custom_name = "Can't tell"
+    end
+    super custom_name || new_name
+  end
+end
+user = User.new(name: "Frank")
+user.name
+user = User.new(name: "Godzilla")
+user.name
+
+class User
+  include Virtus.model(:strict => true)
+  attribute :admin, Boolean
+end
+User.new :admin => "can't really say if true or false"
+
+class User
+  include Virtus.model(:nullify_blank => true)
+  attribute :birthday, Date
+end
+User.new(:birthday => "").birthday
+
+YupNopeBoolean = Virtus.model { |mod|
+  mod.coerce = true
+  mod.coercer.config.string.boolean_map = { 'nope' => false, 'yup' => true }
+}
+class User
+  include YupNopeBoolean
+  attribute :name, String
+  attribute :admin, Boolean
+end
+calss User
+  include Virtus.model(:coerce => false)
+  attribute :name, String
+  attribute :admin, Boolean
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class Blog
+  incldue Virtus.model(:finalize => false)
+  atrribute :posts, Array['Post']
+end
+class Post
+  include Virtus.model(:finalize => false)
+  attriubte :blog, 'Blog'
+end
+Virtus.finalize
+Blog.attribute_set[:posts].member_type.permitive
+Post.attribute_set[:blog].type.permitive
 
 ```
 
